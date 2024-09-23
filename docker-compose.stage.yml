@@ -1,0 +1,26 @@
+services:
+  stage-app:
+    container_name: "${APP_NAME}-stage-app"
+    image: "${DOCKER_IMAGE}:${IMAGE_TAG}"
+    networks:
+      - stage-network
+    environment:
+      - NODE_ENV=production
+    logging:
+      driver: "json-file" # Configure logging driver, useful for debugging
+      options:
+        max-size: "10m" # Limit the size of the log file
+        max-file: "3" # Keep only the last 3 log files
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"] # Healthcheck to ensure the app is running
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s # Wait 40 seconds before starting health checks
+    ports:
+      - "${APP_STAGE_PORT:-3000}:3000"
+
+networks:
+  stage-network:
+    name: "${APP_NAME}-stage-network"
